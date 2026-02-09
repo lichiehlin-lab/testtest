@@ -25,6 +25,9 @@
             --shadow: 0 4px 20px rgba(0, 176, 255, 0.15); /* 藍色冷光陰影 */
             --radius: 12px;          /* 較俐落的圓角 */
             --border-line: 1px solid #E1F5FE;
+            
+            /* LINE 專屬綠色 */
+            --line-green: #06C755;
         }
 
         /* --- 全局樣式 --- */
@@ -262,25 +265,30 @@
             text-shadow: 0 4px 8px rgba(41, 121, 255, 0.3);
         }
 
-        /* --- 預約表單按鈕 (科技漸層) --- */
+        /* --- 預約表單按鈕 (LINE 風格) --- */
         .book-btn {
             width: 100%;
-            background: linear-gradient(90deg, #00B0FF, #2979FF);
+            background-color: var(--line-green); /* LINE 官方綠色 */
             color: white;
             border: none;
             padding: 15px;
             border-radius: 8px; /* 較方正 */
             font-size: 1rem;
             font-weight: 500;
-            box-shadow: 0 6px 20px rgba(41, 121, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.3);
             cursor: pointer;
             margin-top: 15px;
             transition: all 0.2s;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .book-btn:hover {
-            box-shadow: 0 8px 25px rgba(41, 121, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.4);
             transform: translateY(-1px);
+            filter: brightness(1.05);
         }
         .book-btn:active { transform: scale(0.98); }
 
@@ -421,10 +429,10 @@
             <!-- 5. 立即預約頁面 -->
             <div id="booking" class="tab-content">
                 <div class="card">
-                    <div class="card-title">📲 線上預約</div>
-                    <p>請填寫以下資訊，系統將自動開啟您的郵件軟體傳送預約單。</p>
+                    <div class="card-title">📲 線上預約 (LINE)</div>
+                    <p>填寫完畢後，將自動開啟 LINE App。<strong>請在好友名單中點選「蜜蜂美體」傳送預約單即可！</strong></p>
                     
-                    <form onsubmit="sendEmail(event)">
+                    <form onsubmit="sendToLine(event)">
                         <label>貴賓姓名</label>
                         <input type="text" id="booking-name" placeholder="請輸入真實姓名" required>
 
@@ -440,10 +448,17 @@
                             <option>醫師諮詢</option>
                         </select>
 
-                        <label>備註事項</label>
-                        <textarea id="booking-note" rows="3" placeholder="特殊需求或疑問..."></textarea>
+                        <label>預約備註</label>
+                        <textarea id="booking-note" rows="3" placeholder="希望的日期時間 / 特殊需求..."></textarea>
 
-                        <button type="submit" class="book-btn">確認送出 (開啟郵件)</button>
+                        <button type="submit" class="book-btn">
+                            <!-- LINE LOGO ICON -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z" fill="white" fill-opacity="0.3"/>
+                                <path d="M19.4 10.6C19.4 6.8 16.1 3.7 12 3.7C7.9 3.7 4.6 6.8 4.6 10.6C4.6 13.9 6.9 16.7 9.8 17.4C10.2 17.5 10.3 17.6 10.3 17.8C10.3 18 10.2 18.7 10.2 18.9C10.1 19.3 9.8 20.1 10.6 20.1C11 20.1 14.5 18 16.6 15.6C18.3 14.3 19.4 12.5 19.4 10.6Z" fill="white"/>
+                            </svg>
+                            用 LINE 傳送預約
+                        </button>
                     </form>
                 </div>
             </div>
@@ -476,31 +491,33 @@
     </div>
 
     <script>
-        // 處理郵件發送的邏輯
-        function sendEmail(event) {
-            event.preventDefault();
+        // 處理 LINE 預約發送邏輯
+        function sendToLine(event) {
+            event.preventDefault(); // 防止表單重新整理
             
+            // 1. 抓取欄位資料
             const name = document.getElementById('booking-name').value;
             const phone = document.getElementById('booking-phone').value;
             const service = document.getElementById('booking-service').value;
             const note = document.getElementById('booking-note').value;
             
-            // 設定收件人與主旨
-            const email = "lichieh.lin@gmail.com";
-            const subject = encodeURIComponent(`[蜜蜂美體] 線上預約 - ${name}`);
-            
-            // 組合郵件內容
-            const bodyContent = 
-                `姓名: ${name}\n` +
-                `電話: ${phone}\n` +
-                `諮詢項目: ${service}\n` +
-                `備註事項: ${note}\n\n` +
-                `Sent from 蜜蜂美體醫美中心 Web Card`;
+            // 2. 組合要傳送的訊息內容
+            // 使用符號分隔讓訊息在 LINE 裡面比較好閱讀
+            const message = 
+                `【蜜蜂美體 - 線上預約單】\n` +
+                `--------------------------\n` +
+                `👤 姓名：${name}\n` +
+                `📞 電話：${phone}\n` +
+                `✨ 項目：${service}\n` +
+                `📝 備註：${note}\n` +
+                `--------------------------\n` +
+                `(請協助確認時間，謝謝！)`;
                 
-            const body = encodeURIComponent(bodyContent);
+            // 3. 製作 LINE 分享網址 (使用 encodeURIComponent 處理特殊字元)
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
             
-            // 開啟預設郵件軟體
-            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            // 4. 跳轉到 LINE App
+            window.location.href = lineUrl;
         }
 
         // 切換分頁的邏輯
