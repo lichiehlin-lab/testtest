@@ -1,548 +1,322 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蜜蜂美體醫美中心 - 術後照護小卡</title>
-    <style>
-        /* --- 變數設定 (科技感配色) --- */
-        :root {
-            /* 主色調：科技藍 -> 極光青 */
-            --primary-color: #00B0FF; 
-            --secondary-color: #00E5FF; 
-            
-            /* 背景與介面 */
-            --app-bg: #F5F7FA;       /* 冷灰白背景 */
-            --card-bg: #FFFFFF;      /* 純白卡片 */
-            --nav-bg: #FFFFFF;
-            
-            /* 文字與裝飾 */
-            --text-main: #263238;    /* 深藍灰文字 */
-            --text-sub: #546E7A;     /* 次要文字 */
-            --accent-color: #2979FF; /* 強調色 (深藍) */
-            
-            /* 效果 */
-            --shadow: 0 4px 20px rgba(0, 176, 255, 0.15); /* 藍色冷光陰影 */
-            --radius: 12px;          /* 較俐落的圓角 */
-            --border-line: 1px solid #E1F5FE;
-            
-            /* LINE 專屬綠色 */
-            --line-green: #06C755;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>貪吃蛇遊戲</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --grid: #1f2937;
+      --snake: #22c55e;
+      --snake-head: #16a34a;
+      --food: #ef4444;
+      --text: #e5e7eb;
+      --sub: #94a3b8;
+      --accent: #38bdf8;
+    }
 
-        /* --- 全局樣式 --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "微軟正黑體", "Heiti TC", "Noto Sans TC", sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+    * { box-sizing: border-box; }
 
-        body {
-            background-color: #ECEFF1; /* 網頁背景色 */
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px 10px;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--text);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      padding: 20px;
+    }
 
-        /* --- 手機模擬容器 --- */
-        .app-container {
-            width: 100%;
-            max-width: 420px;
-            background-color: var(--app-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(38, 50, 56, 0.15);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            height: 85vh;
-            max-height: 800px;
-        }
+    .game-wrap {
+      width: min(92vw, 500px);
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
 
-        /* --- 頂部 Header (科技漸層) --- */
-        .header {
-            background: linear-gradient(135deg, #01579B, #0288D1);
-            padding: 25px 20px;
-            text-align: center;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            box-shadow: 0 2px 10px rgba(1, 87, 155, 0.2);
-            flex-shrink: 0;
-            z-index: 10;
-            color: white;
-            position: relative;
-        }
-        
-        /* 增加一點科技感的裝飾線 */
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #00E5FF, #2979FF);
-        }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 1.4rem;
+      text-align: center;
+    }
 
-        .header h1 {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--sub);
+      font-size: 0.95rem;
+    }
 
-        .header p {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            font-weight: 300;
-        }
+    .status b { color: var(--text); }
 
-        /* --- 內容區域 --- */
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px;
-            scroll-behavior: smooth;
-        }
+    canvas {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: var(--card);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      display: block;
+      image-rendering: pixelated;
+    }
 
-        .content-area::-webkit-scrollbar {
-            width: 4px;
-        }
-        .content-area::-webkit-scrollbar-thumb {
-            background-color: #B0BEC5;
-            border-radius: 10px;
-        }
+    .controls {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      user-select: none;
+    }
 
-        /* --- 分頁動畫 --- */
-        .tab-content {
-            display: none;
-            animation: slideUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
+    .btn {
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      text-align: center;
+    }
 
-        .tab-content.active {
-            display: block;
-        }
+    .btn:active { transform: translateY(1px); }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .btn.start {
+      margin-top: 12px;
+      width: 100%;
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      font-weight: 700;
+    }
 
-        /* --- 卡片風格 (科技簡約) --- */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #E3F2FD; /* 極淡的藍色邊框 */
-            border-left: 4px solid var(--primary-color); /* 左側科技藍條 */
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            transition: transform 0.2s;
-        }
-        
-        /* 微互動：點擊或滑過時浮起 */
-        .card:active {
-            transform: scale(0.99);
-        }
-
-        .card-title {
-            color: var(--accent-color);
-            font-size: 1.05rem;
-            font-weight: bold;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid #F5F5F5; /* 實線取代虛線 */
-            padding-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .card p {
-            line-height: 1.7;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            text-align: justify;
-            color: var(--text-sub);
-        }
-        
-        strong {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        .tag {
-            display: inline-block;
-            background-color: #E1F5FE; /* 淡藍底 */
-            color: #0277BD;           /* 深藍字 */
-            padding: 4px 12px;
-            border-radius: 4px;       /* 較方正 */
-            font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        /* --- 價目表樣式 --- */
-        .price-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #EFF0F1;
-        }
-        .price-item:last-child { border-bottom: none; }
-        .price-name { font-weight: 600; color: var(--text-main); }
-        .price-val { 
-            color: var(--accent-color); 
-            font-weight: bold; 
-            font-family: 'Roboto', sans-serif; /* 數字用無襯線字體更有科技感 */
-        }
-
-        /* --- 常見問題樣式 --- */
-        .faq-item {
-            margin-bottom: 15px;
-            background-color: #FFFFFF;
-            border: 1px solid #ECEFF1;
-            border-radius: var(--radius);
-            padding: 18px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .faq-q { color: var(--text-main); font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; }
-        .faq-a { font-size: 0.85rem; color: var(--text-sub); line-height: 1.6; padding-left: 10px; border-left: 2px solid #CFD8DC; }
-
-        /* --- 底部導航列 --- */
-        .nav-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--nav-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 5px;
-            border-top: 1px solid #ECEFF1;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
-            z-index: 20;
-        }
-
-        .nav-btn {
-            background: none;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #B0BEC5;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            flex: 1;
-        }
-
-        .nav-btn span {
-            font-size: 1.2rem;
-            margin-bottom: 6px;
-            display: block;
-            transition: all 0.3s;
-        }
-
-        .nav-btn.active {
-            color: var(--accent-color);
-        }
-        
-        .nav-btn.active span {
-            transform: translateY(-3px);
-            text-shadow: 0 4px 8px rgba(41, 121, 255, 0.3);
-        }
-
-        /* --- 預約表單按鈕 (LINE 風格) --- */
-        .book-btn {
-            width: 100%;
-            background-color: var(--line-green); /* LINE 官方綠色 */
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px; /* 較方正 */
-            font-size: 1rem;
-            font-weight: 500;
-            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.3);
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.2s;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .book-btn:hover {
-            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.4);
-            transform: translateY(-1px);
-            filter: brightness(1.05);
-        }
-        .book-btn:active { transform: scale(0.98); }
-
-        /* --- 輸入框美化 (簡約風) --- */
-        input, select, textarea {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            border: 1px solid #CFD8DC;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            background-color: #FAFAFA;
-            outline: none;
-            color: var(--text-main);
-            transition: border-color 0.3s;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-color);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(0, 176, 255, 0.1);
-        }
-        
-        label {
-            display: block;
-            color: var(--text-sub);
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-            margin-left: 2px;
-        }
-
-    </style>
+    .hint {
+      margin-top: 10px;
+      color: var(--sub);
+      text-align: center;
+      font-size: 0.85rem;
+    }
+  </style>
 </head>
 <body>
+  <main class="game-wrap">
+    <h1>🐍 貪吃蛇</h1>
+    <section class="status">
+      <div>分數：<b id="score">0</b></div>
+      <div>最高分：<b id="best">0</b></div>
+      <div id="state">按開始遊戲</div>
+    </section>
 
-    <div class="app-container">
-        <!-- 頂部 Header -->
-        <header class="header">
-            <h1>🔹 蜜蜂美體醫美中心</h1>
-            <p>Precise Beauty & Care | 專業醫學美容</p>
-        </header>
+    <canvas id="board" width="400" height="400" aria-label="貪吃蛇畫布"></canvas>
 
-        <!-- 內容區域 -->
-        <main class="content-area">
-            
-            <!-- 1. 術後照護頁面 (預設顯示) -->
-            <div id="care" class="tab-content active">
-                <div class="card">
-                    <div class="card-title">⚡ 黃金修復期指引</div>
-                    <p>術後 <strong>7 天</strong> 為細胞修復關鍵期。請嚴格遵守照護流程，以確保療程達到最佳效能。</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">💧 保濕與清潔程序</div>
-                    <p>• <strong>溫和潔膚：</strong> 使用常溫水與非離子介面活性劑之洗面乳。</p>
-                    <p>• <strong>高效補水：</strong> 早晚使用醫療級保濕敷料或面膜，強化屏障功能。</p>
-                    <div style="margin-top: 10px;">
-                        <span class="tag">#玻尿酸</span>
-                        <span class="tag">#神經醯胺</span>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🚫 禁忌事項</div>
-                    <p>為避免過敏反應與色素沈澱，一週內禁止：</p>
-                    <p>❌ 使用酸類 (A酸/果酸) 及美白成分</p>
-                    <p>❌ 物理性去角質或挽臉</p>
-                    <p>❌ 處於高溫環境 (三溫暖/烤箱/溫泉)</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">☀️ 光學防護</div>
-                    <p>外出必須使用 SPF30/PA+++ 以上之廣譜防曬劑，並搭配物理遮蔽，避免紫外線干擾修復。</p>
-                </div>
-            </div>
-
-            <!-- 2. 價目表頁面 -->
-            <div id="price" class="tab-content">
-                <div class="card">
-                    <div class="card-title">💎 療程方案</div>
-                    
-                    <div class="price-item">
-                        <span class="price-name">智能水光保濕導入</span>
-                        <span class="price-val">$ 1,200</span>
-                    </div>
-                    <div class="price-item">
-                        <span class="price-name">皮秒蜂巢雷射</span>
-                        <span class="price-val">$ 3,500</span>
-                    </div>
-                    <div class="price-item">
-                        <span class="price-name">光學除毛 (體驗價)</span>
-                        <span class="price-val">$ 1,999</span>
-                    </div>
-                    <div class="price-item">
-                        <span class="price-name">V-Line 音波拉提</span>
-                        <span class="price-val">$ 2,800</span>
-                    </div>
-                </div>
-                <div style="text-align: center; color: #B0BEC5; font-size: 0.75rem; margin-top: 10px;">
-                    * 價格僅供參考，實際費用依現場醫師評估為準
-                </div>
-            </div>
-
-            <!-- 3. 預約須知頁面 -->
-            <div id="rules" class="tab-content">
-                <div class="card">
-                    <div class="card-title">⏱️ 預約守則</div>
-                    <p>為確保醫療品質，請於預約時間<strong>前 10 分鐘</strong>報到進行術前準備。</p>
-                    <p>遲到超過 15 分鐘將視現場狀況縮短療程或取消，以維護後續貴賓權益。</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📅 變更與取消</div>
-                    <p>如需更改時段，請於<strong>24 小時前</strong>聯繫客服中心，以便重新安排您的專屬時段。</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">⚠️ 醫療聲明</div>
-                    <p>若有懷孕、服用光敏感藥物或近期接受過其他微整療程，請務必主動告知。</p>
-                </div>
-            </div>
-
-            <!-- 4. 常見問題頁面 -->
-            <div id="faq" class="tab-content">
-                <div class="faq-item">
-                    <div class="faq-q">Q: 術後可立即上妝嗎？</div>
-                    <div class="faq-a">建議術後 24 小時內保持素顏以利修復。若必須上妝，請選用礦物成分彩妝，並徹底清潔。</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-q">Q: 臉部出現結痂反應？</div>
-                    <div class="faq-a">此為正常組織修復現象，請勿摳除。待其自然脫落後，新生肌膚將更加細緻。</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-q">Q: 療程建議間隔時間？</div>
-                    <div class="faq-a">保養型雷射建議間隔 3-4 週，深層治療建議 4-6 週。詳情請諮詢主治醫師。</div>
-                </div>
-            </div>
-
-            <!-- 5. 立即預約頁面 -->
-            <div id="booking" class="tab-content">
-                <div class="card">
-                    <div class="card-title">📲 線上預約 (LINE)</div>
-                    <p>填寫完畢後，將自動開啟 LINE App。<strong>請在好友名單中點選「蜜蜂美體」傳送預約單即可！</strong></p>
-                    
-                    <form onsubmit="sendToLine(event)">
-                        <label>貴賓姓名</label>
-                        <input type="text" id="booking-name" placeholder="請輸入真實姓名" required>
-
-                        <label>聯絡電話</label>
-                        <input type="tel" id="booking-phone" placeholder="09xx-xxx-xxx" required>
-
-                        <label>諮詢項目</label>
-                        <select id="booking-service">
-                            <option>請選擇療程類別</option>
-                            <option>皮秒雷射</option>
-                            <option>保濕導入</option>
-                            <option>除毛課程</option>
-                            <option>醫師諮詢</option>
-                        </select>
-
-                        <label>預約備註</label>
-                        <textarea id="booking-note" rows="3" placeholder="希望的日期時間 / 特殊需求..."></textarea>
-
-                        <button type="submit" class="book-btn">
-                            <!-- LINE LOGO ICON -->
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z" fill="white" fill-opacity="0.3"/>
-                                <path d="M19.4 10.6C19.4 6.8 16.1 3.7 12 3.7C7.9 3.7 4.6 6.8 4.6 10.6C4.6 13.9 6.9 16.7 9.8 17.4C10.2 17.5 10.3 17.6 10.3 17.8C10.3 18 10.2 18.7 10.2 18.9C10.1 19.3 9.8 20.1 10.6 20.1C11 20.1 14.5 18 16.6 15.6C18.3 14.3 19.4 12.5 19.4 10.6Z" fill="white"/>
-                            </svg>
-                            用 LINE 傳送預約
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-        </main>
-
-        <!-- 底部導航列 -->
-        <nav class="nav-bar">
-            <button class="nav-btn active" onclick="switchTab('care', this)">
-                <span>🛡️</span>
-                照護
-            </button>
-            <button class="nav-btn" onclick="switchTab('price', this)">
-                <span>💎</span>
-                方案
-            </button>
-            <button class="nav-btn" onclick="switchTab('rules', this)">
-                <span>📋</span>
-                須知
-            </button>
-            <button class="nav-btn" onclick="switchTab('faq', this)">
-                <span>💬</span>
-                問答
-            </button>
-            <button class="nav-btn" onclick="switchTab('booking', this)">
-                <span>📅</span>
-                預約
-            </button>
-        </nav>
+    <div class="controls">
+      <button class="btn" data-dir="up">⬆️</button>
+      <button class="btn" id="pause">⏯ 暫停</button>
+      <button class="btn" data-dir="right">➡️</button>
+      <button class="btn" data-dir="left">⬅️</button>
+      <button class="btn" data-dir="down">⬇️</button>
+      <button class="btn" id="restart">🔁 重來</button>
     </div>
 
-    <script>
-        // 處理 LINE 預約發送邏輯
-        function sendToLine(event) {
-            event.preventDefault(); // 防止表單重新整理
-            
-            // 1. 抓取欄位資料
-            const name = document.getElementById('booking-name').value;
-            const phone = document.getElementById('booking-phone').value;
-            const service = document.getElementById('booking-service').value;
-            const note = document.getElementById('booking-note').value;
-            
-            // 2. 組合要傳送的訊息內容
-            // 使用符號分隔讓訊息在 LINE 裡面比較好閱讀
-            const message = 
-                `【蜜蜂美體 - 線上預約單】\n` +
-                `--------------------------\n` +
-                `👤 姓名：${name}\n` +
-                `📞 電話：${phone}\n` +
-                `✨ 項目：${service}\n` +
-                `📝 備註：${note}\n` +
-                `--------------------------\n` +
-                `(請協助確認時間，謝謝！)`;
-                
-            // 3. 製作 LINE 分享網址 (使用 encodeURIComponent 處理特殊字元)
-            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
-            
-            // 4. 跳轉到 LINE App
-            window.location.href = lineUrl;
-        }
+    <button class="btn start" id="start">開始遊戲</button>
+    <p class="hint">使用方向鍵或按鈕控制，吃到紅色食物就會變長。</p>
+  </main>
 
-        // 切換分頁的邏輯
-        function switchTab(tabId, btnElement) {
-            // 1. 隱藏所有內容
-            const allContents = document.querySelectorAll('.tab-content');
-            allContents.forEach(content => {
-                content.classList.remove('active');
-            });
+  <script>
+    const board = document.getElementById('board');
+    const ctx = board.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const stateEl = document.getElementById('state');
 
-            // 2. 移除所有按鈕的 active 狀態
-            const allBtns = document.querySelectorAll('.nav-btn');
-            allBtns.forEach(btn => {
-                btn.classList.remove('active');
-            });
+    const gridCount = 20;
+    const cell = board.width / gridCount;
+    const bestKey = 'snake-best-score';
 
-            // 3. 顯示選中的內容
-            document.getElementById(tabId).classList.add('active');
+    let snake;
+    let dir;
+    let nextDir;
+    let food;
+    let score;
+    let timer;
+    let running = false;
+    let paused = false;
 
-            // 4. 點亮的按鈕設為 active
-            btnElement.classList.add('active');
+    function init() {
+      snake = [{ x: 10, y: 10 }];
+      dir = { x: 1, y: 0 };
+      nextDir = { ...dir };
+      food = spawnFood();
+      score = 0;
+      paused = false;
+      updateScore();
+      draw();
+      stateEl.textContent = '按開始遊戲';
+      bestEl.textContent = localStorage.getItem(bestKey) || '0';
+    }
 
-            // 5. 滾動回頂部
-            document.querySelector('.content-area').scrollTop = 0;
-        }
-    </script>
+    function spawnFood() {
+      let pos;
+      do {
+        pos = {
+          x: Math.floor(Math.random() * gridCount),
+          y: Math.floor(Math.random() * gridCount),
+        };
+      } while (snake.some((part) => part.x === pos.x && part.y === pos.y));
+      return pos;
+    }
+
+    function updateScore() {
+      scoreEl.textContent = String(score);
+      const best = Number(localStorage.getItem(bestKey) || 0);
+      if (score > best) {
+        localStorage.setItem(bestKey, String(score));
+        bestEl.textContent = String(score);
+      }
+    }
+
+    function setDirection(newDir) {
+      if (!running || paused) return;
+      if (newDir.x === -dir.x && newDir.y === -dir.y) return;
+      nextDir = newDir;
+    }
+
+    function step() {
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      const hitsWall = head.x < 0 || head.y < 0 || head.x >= gridCount || head.y >= gridCount;
+      const hitsSelf = snake.some((part) => part.x === head.x && part.y === head.y);
+
+      if (hitsWall || hitsSelf) {
+        gameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score += 1;
+        updateScore();
+        food = spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function drawGrid() {
+      ctx.strokeStyle = '#1f2937';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= gridCount; i++) {
+        const p = i * cell;
+        ctx.beginPath();
+        ctx.moveTo(p, 0);
+        ctx.lineTo(p, board.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, p);
+        ctx.lineTo(board.width, p);
+        ctx.stroke();
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(0, 0, board.width, board.height);
+      drawGrid();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(food.x * cell + cell / 2, food.y * cell + cell / 2, cell * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      snake.forEach((part, idx) => {
+        ctx.fillStyle = idx === 0 ? '#16a34a' : '#22c55e';
+        ctx.fillRect(part.x * cell + 1, part.y * cell + 1, cell - 2, cell - 2);
+      });
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      paused = false;
+      stateEl.textContent = '進行中';
+      timer = setInterval(step, 130);
+    }
+
+    function togglePause() {
+      if (!running) return;
+      paused = !paused;
+      stateEl.textContent = paused ? '已暫停' : '進行中';
+      if (paused) {
+        clearInterval(timer);
+      } else {
+        timer = setInterval(step, 130);
+      }
+    }
+
+    function restart() {
+      clearInterval(timer);
+      running = false;
+      init();
+    }
+
+    function gameOver() {
+      clearInterval(timer);
+      running = false;
+      stateEl.textContent = '遊戲結束';
+      draw();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+      ctx.fillRect(0, 0, board.width, board.height);
+      ctx.fillStyle = '#e5e7eb';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Game Over', board.width / 2, board.height / 2 - 10);
+      ctx.font = '18px sans-serif';
+      ctx.fillText(`分數：${score}`, board.width / 2, board.height / 2 + 25);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const map = {
+        ArrowUp: { x: 0, y: -1 },
+        ArrowDown: { x: 0, y: 1 },
+        ArrowLeft: { x: -1, y: 0 },
+        ArrowRight: { x: 1, y: 0 },
+      };
+      if (map[e.key]) {
+        e.preventDefault();
+        setDirection(map[e.key]);
+      }
+      if (e.key === ' ') {
+        e.preventDefault();
+        togglePause();
+      }
+    });
+
+    document.querySelectorAll('[data-dir]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const map = {
+          up: { x: 0, y: -1 },
+          down: { x: 0, y: 1 },
+          left: { x: -1, y: 0 },
+          right: { x: 1, y: 0 },
+        };
+        setDirection(map[btn.dataset.dir]);
+      });
+    });
+
+    document.getElementById('start').addEventListener('click', start);
+    document.getElementById('pause').addEventListener('click', togglePause);
+    document.getElementById('restart').addEventListener('click', restart);
+
+    init();
+  </script>
 </body>
 </html>
